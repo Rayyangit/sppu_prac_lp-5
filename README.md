@@ -65,3 +65,6 @@ int main() {
     delete[] arr;
     return 0;
 }
+
+g++ -fopenmp omp_statss.cpp -o omp_statss
+./omp_statss
