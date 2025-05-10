@@ -68,3 +68,32 @@ int main() {
 
 g++ -fopenmp omp_statss.cpp -o omp_statss
 ./omp_statss
+
+
+import numpy as np
+from joblib import Parallel, delayed
+import math
+
+# Helper to split array into chunks
+def chunk_array(arr, n_chunks):
+    chunk_size = math.ceil(len(arr) / n_chunks)
+    return [arr[i:i + chunk_size] for i in range(0, len(arr), chunk_size)]
+
+# Generic parallel reduction function
+def parallel_reduce(arr, func, final_reduce_func, n_jobs=4):
+    chunks = chunk_array(arr, n_jobs)
+    partial_results = Parallel(n_jobs=n_jobs)(delayed(func)(chunk) for chunk in chunks)
+    return final_reduce_func(partial_results)
+
+if __name__ == "__main__":
+    arr = np.array([5, 2, 9, 1, 7, 6, 8, 3, 4, 12, 10, 11])
+
+    min_val = parallel_reduce(arr, np.min, min)
+    max_val = parallel_reduce(arr, np.max, max)
+    total_sum = parallel_reduce(arr, np.sum, sum)
+    average = total_sum / len(arr)
+
+    print("Parallel Min:", min_val)
+    print("Parallel Max:", max_val)
+    print("Parallel Sum:", total_sum)
+    print("Parallel Average:", average)
